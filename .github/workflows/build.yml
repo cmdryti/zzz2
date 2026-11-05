@@ -1,26 +1,36 @@
+YAML
 name: Gerar APK
 
 on:
   push:
-    branches: [main, master]
+    branches: [ "main", "master" ]
   workflow_dispatch:
 
 jobs:
   apk:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
-      - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: 8.9
-      - name: Compilar
-        run: gradle assembleDebug --no-daemon
-      - name: Guardar o APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: DanceBot-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+
+    - name: Dar permissao ao Gradle
+      run: chmod +x DanceBotAndroid/gradlew
+
+    - name: Compilar APK
+      run: cd DanceBotAndroid && ./gradlew assembleDebug --no-daemon
+
+    - name: Guardar o APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: DanceBot-apk
+        path: DanceBotAndroid/app/build/outputs/apk/debug/app-debug.apk
