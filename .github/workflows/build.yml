@@ -19,13 +19,13 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Dar permissao ao Gradle
+    - name: Grant execute permission for gradlew
       run: chmod +x DanceBotAndroid/gradlew
 
-    - name: Compilar APK
+    - name: Build Debug APK
       run: cd DanceBotAndroid && ./gradlew assembleDebug --no-daemon
 
-    - name: Guardar o APK
+    - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: DanceBot-apk
