@@ -19,33 +19,29 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Verificar estrutura e dar permissao
+    - name: Encontrar gradlew e Compilar APK
       run: |
-        echo "A procurar pelo gradlew..."
-        if [ -f "DanceBotAndroid/gradlew" ]; then
-          chmod +x DanceBotAndroid/gradlew
-          echo "Encontrado em DanceBotAndroid/gradlew"
-        elif [ -f "gradlew" ]; then
-          chmod +x gradlew
-          echo "Encontrado na raiz"
-        else
-          echo "ERRO: gradlew nao encontrado! A listar pastas:"
-          ls -R
+        echo "A procurar pelo gradlew no projeto..."
+        GRADLEW_PATH=$(find . -name "gradlew" -type f | head -n 1)
+        
+        if [ -z "$GRADLEW_PATH" ]; then
+          echo "ERRO CRITICO: Ficheiro gradlew nao foi encontrado no repositorio!"
           exit 1
         fi
-
-    - name: Compilar APK
-      run: |
-        if [ -f "DanceBotAndroid/gradlew" ]; then
-          cd DanceBotAndroid && ./gradlew assembleDebug --no-daemon
-        else
-          ./gradlew assembleDebug --no-daemon
-        fi
+        
+        echo "Ficheiro encontrado em: $GRADLEW_PATH"
+        PROJECT_DIR=$(dirname "$GRADLEW_PATH")
+        
+        chmod +x "$GRADLEW_PATH"
+        
+        echo "A entrar na pasta do projeto: $PROJECT_DIR"
+        cd "$PROJECT_DIR"
+        
+        ./gradlew assembleDebug --no-daemon
 
     - name: Guardar o APK
       uses: actions/upload-artifact@v4
       with:
         name: DanceBot-apk
         path: |
-          DanceBotAndroid/app/build/outputs/apk/debug/*.apk
-          app/build/outputs/apk/debug/*.apk
+          **/build/outputs/apk/debug/*.apk
